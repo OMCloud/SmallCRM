@@ -25,7 +25,10 @@ class Customer(models.Model):
     referral_from = models.CharField(verbose_name="转介绍人", max_length=64, blank=True)
     consult_course = models.ForeignKey("Course", verbose_name="咨询课程")
     content = models.TextField(verbose_name="咨询详情")
-    tags = models.ManyToManyField("Tag", blank=True, null=True)
+    ##下面这句代码如果再加上null=True,会出现警告错误
+    # (fields.W340) null has no effect on ManyToManyField.
+    # tags = models.ManyToManyField("Tag", blank=True, null=True)
+    tags = models.ManyToManyField("Tag", blank=True)
     consultant = models.ForeignKey("UserProfile")   #课程顾问
     status_choices = ((0, '已报名'),
                       (1, '未报名'))
@@ -238,7 +241,11 @@ class UserProfile(models.Model):
     '''
     user = models.OneToOneField(User)
     name = models.CharField(max_length=32)
-    roles = models.ManyToManyField("Role", blank=True, null=True)
+
+    ##下面这句代码如果再加上null=True,会出现警告错误
+    # (fields.W340) null has no effect on ManyToManyField.
+    #roles = models.ManyToManyField("Role", blank=True, null=True)
+    roles = models.ManyToManyField("Role", blank=True)
 
     def __str__(self):
         return self.name
@@ -268,6 +275,9 @@ class Menu(models.Model):
     '''
     name = models.CharField(max_length=32)
     url_name = models.CharField(max_length=64)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = "菜单"
