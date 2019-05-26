@@ -27,11 +27,18 @@ class Customer(models.Model):
     content = models.TextField(verbose_name="咨询详情")
     tags = models.ManyToManyField("Tag", blank=True, null=True)
     consultant = models.ForeignKey("UserProfile")   #课程顾问
+    status_choices = ((0, '已报名'),
+                      (1, '未报名'))
+    status = models.SmallIntegerField(choices=status_choices, default=1)
     memo = models.TextField(blank=True, null=True)  #备注
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.qq
+
+    class Meta:
+        verbose_name = "客户"
+        verbose_name_plural = "客户"
 
 
 class Tag(models.Model):
@@ -42,6 +49,9 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "标签"
+        verbose_name_plural = "标签"
 class CustomerFollowUp(models.Model):
     '''
     客户跟进表
@@ -63,6 +73,10 @@ class CustomerFollowUp(models.Model):
     def __str__(self):
         return "<%s : %s>" % (self.customer.qq, self.intention)
 
+    class Meta:
+        verbose_name = "客户跟进"
+        verbose_name_plural = "客户跟进"
+
 
 class Course(models.Model):
     '''
@@ -76,6 +90,9 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "课程"
+        verbose_name_plural = "课程"
 
 class Branch(models.Model):
     '''
@@ -87,6 +104,9 @@ class Branch(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "地区"
+        verbose_name_plural = "地区"
 
 class ClassList(models.Model):
     '''
@@ -110,6 +130,8 @@ class ClassList(models.Model):
 
     class Meta:
         unique_together = ("branch", "course", "semester")
+        verbose_name = "班级"
+        verbose_name_plural = "班级"
 
 
 class CourseRecord(models.Model):
@@ -130,6 +152,8 @@ class CourseRecord(models.Model):
 
     class Meta:
         unique_together = ("from_class", "day_num")
+        verbose_name = "上课记录"
+        verbose_name_plural = "上课记录"
 
 
 
@@ -165,7 +189,10 @@ class StudyRecord(models.Model):
     def __str__(self):
         return "%s %s %s" % (self.student, self.course_record, self.socre)
 
-
+    class Meta:
+        unique_together = ("student", "course_record")
+        verbose_name = "学习记录"
+        verbose_name_plural = "学习记录"
 
 class Enrollment(models.Model):
     '''
@@ -183,6 +210,8 @@ class Enrollment(models.Model):
 
     class Meta:
         unique_together = ("customer", "enrolled_class")
+        verbose_name = "报名"
+        verbose_name_plural = "报名"
 
 
 class Payment(models.Model):
@@ -198,6 +227,10 @@ class Payment(models.Model):
     def __str__(self):
         return "%s %s" % (self.customer, self.amount)
 
+    class Meta:
+        verbose_name = "缴费记录"
+        verbose_name_plural = "缴费记录"
+
 
 class UserProfile(models.Model):
     '''
@@ -210,13 +243,34 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "用户"
+        verbose_name_plural = "用户"
+
 
 class Role(models.Model):
     '''
     角色表
     '''
     name = models.CharField(max_length=32, unique=True)
+    menus = models.ManyToManyField("Menu", blank=True)
+
     def __str__(self):
         return  self.name
+
+    class Meta:
+        verbose_name = "角色"
+        verbose_name_plural = "角色"
+
+class Menu(models.Model):
+    '''
+    菜单
+    '''
+    name = models.CharField(max_length=32)
+    url_name = models.CharField(max_length=64)
+
+    class Meta:
+        verbose_name = "菜单"
+        verbose_name_plural = "菜单"
 
 
