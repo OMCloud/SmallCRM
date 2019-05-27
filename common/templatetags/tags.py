@@ -28,12 +28,25 @@ def build_table_row(obj, admin_class):
     return mark_safe(row_ele)
 
 @register.simple_tag
-def render_page_ele(loop_counter, query_sets):
+def render_page_ele(loop_counter, query_sets, filter_conditions):
+    filters = ''
+    for k, v in filter_conditions.items():
+        filters += "&%s=%s" % (k,v)
+
+    #前两页和后两页直接显示
+    if loop_counter < 3 or loop_counter > query_sets.paginator.num_pages -2:
+        ele_class = ""
+        if query_sets.number == loop_counter:
+            ele_class = "active"
+        ele = '''<li class="%s"><a href="?page=%s%s">%s</a></li>''' % (ele_class, loop_counter, filters, loop_counter)
+        return mark_safe(ele)
+
+    #当前页的前后页也直接显示
     if abs(query_sets.number - loop_counter) <= 1:
         ele_class = ""
         if query_sets.number == loop_counter:
             ele_class = "active"
-        ele = '''<li class="%s"><a href="?page=%s">%s</a></li>''' % (ele_class, loop_counter, loop_counter)
+        ele = '''<li class="%s"><a href="?page=%s%s">%s</a></li>''' % (ele_class, loop_counter, filters, loop_counter)
 
         return mark_safe(ele)
     return ''
@@ -48,7 +61,7 @@ def render_filter_ele(condition, admin_class, filter_conditions):
             if filter_conditions.get(condition) == str(choice_item[0]):
                 selected = "selected"
 
-            select_ele += '''<option value='%s' %s>%s</option>''' % (choice_item[0], selected, choice_item[0])
+            select_ele += '''<option value='%s' %s>%s</option>''' % (choice_item[0], selected, choice_item[1])
             selected = ''
 
     if type(field_obj).__name__ == "ForeignKey":
@@ -56,8 +69,72 @@ def render_filter_ele(condition, admin_class, filter_conditions):
         for choice_item in field_obj.get_choices()[1:]:
             if filter_conditions.get(condition) == str(choice_item[0]):
                 selected = "selected"
-            select_ele += '''<option value='%s' %s>%s</option>''' % (choice_item[0], selected, choice_item[0])
+            select_ele += '''<option value='%s' %s>%s</option>''' % (choice_item[0], selected, choice_item[1])
             selected = ''
     select_ele += "</select>"
 
     return mark_safe(select_ele)
+
+
+@register.simple_tag
+def build_paginators(query_sets, filter_conditions, pre_orderby_key):
+    flag = True  #用来标识当出现不要展示的页码时，是否使用...
+    filters = ''
+    for k, v in filter_conditions.items():
+        filters += "&%s=%s" % (k, v)
+
+    ele_list = ""
+
+
+    # 前两页和后两页直接显示
+    for loop_counter in query_sets.paginator.page_range:
+        if loop_counter < 3 or loop_counter > query_sets.paginator.num_pages - 2:
+            ele_class = ""
+            if query_sets.number == loop_counter:
+                flag = True
+                ele_class = "active"
+            ele_list += '''<li class="%s"><a href="?page=%s%s&o=%s">%s</a></li>''' % (
+            ele_class, loop_counter, filters, pre_orderby_key, loop_counter)
+        # 当前页的前一页和后一页也直接显示
+        elif abs(query_sets.number - loop_counter) <= 1:
+            ele_class = ""
+            if query_sets.number == loop_counter:
+                flag = True
+                ele_class = "active"
+            ele_list += '''<li class="%s"><a href="?page=%s%s&o=%s">%s</a></li>''' % (
+            ele_class, loop_counter, filters, pre_orderby_key, loop_counter)
+        else:
+            if flag:
+                ele_list += '<li><a>...</a></li>'
+                flag = False
+    flag = True
+    return mark_safe(ele_list)
+
+
+@register.simple_tag
+def build_table_column(column, orderby_key, filter_conditions):
+    filters = ''
+    for k, v in filter_conditions.items():
+        filters += "&%s=%s" % (k, v)
+
+    #根据排序字段重新设置排序条件（取反）
+    ele = '''<th><a href="?o=%s%s">%s</a>%s
+    </th>'''
+    if orderby_key:
+        if orderby_key.startswith("-"):
+            icon = '''<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>'''
+        else:
+            icon = '''<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>'''
+        #判断是否为排序的字段
+        if orderby_key.strip("-") != column:
+            orderby_key = column
+            icon = ''
+    else:
+        orderby_key = column
+        icon = ''
+
+    ele = ele % (orderby_key, filters, column, icon)
+
+
+    return mark_safe(ele)
+
