@@ -5,15 +5,16 @@ enabled_admins = {}
 class BaseAdmin(object):
     list_display = []
     list_filters = []
+    list_per_page = 10
 
 class CustomerAdmin(BaseAdmin):
-    list_display = ['qq','name','source','consultant','consult_course','date','status']
+    list_display = ['id', 'qq','name','source','consultant','consult_course','date','status']
     list_filters = ['source','consultant','consult_course','status']
-    list_per_page = 10   #自定义每页显示的页数
+    list_per_page = 5   #自定义每页显示的页数
 
 class CustomerFollowUpAdmin(BaseAdmin):
     list_display = ['customer', 'consultant', 'date']
-    list_per_page =10
+    list_per_page =5
 
 def register(model_class, admin_class=None):
     if model_class._meta.app_label not in enabled_admins:
