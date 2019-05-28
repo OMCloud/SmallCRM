@@ -1,6 +1,6 @@
 from django import template
 from django.utils.safestring import mark_safe
-
+from django.utils.timezone import datetime,timedelta
 register = template.Library()
 
 @register.simple_tag
@@ -71,6 +71,28 @@ def render_filter_ele(condition, admin_class, filter_conditions):
                 selected = "selected"
             select_ele += '''<option value='%s' %s>%s</option>''' % (choice_item[0], selected, choice_item[1])
             selected = ''
+
+    if type(field_obj).__name__ in ["DateTimeField", "DateField"]:
+        select_ele = '''<select class="form-control" name='%s' ><option value=''>---</option>''' % ("%s__gte" % condition)
+        date_list = []
+        current_date = datetime.now().date()
+        date_list.append(["今天", current_date])
+        last_one_day = current_date - timedelta(days=1)
+        date_list.append(["昨天", last_one_day])
+        last_seven_day = current_date - timedelta(days=7)
+        date_list.append(["近七天", last_seven_day])
+        mtd = current_date.replace(day=1)
+        date_list.append(["本月", mtd])
+        last_month_day = current_date - timedelta(days=30)
+        date_list.append(["近30天", last_month_day])
+        last_180day = current_date - timedelta(days=180)
+        date_list.append(["近180天", last_180day])
+
+        selected = ""
+        for item in date_list:
+
+            select_ele += '''<option value='%s' %s>%s</option>''' % (item[1], selected, item[0])
+
     select_ele += "</select>"
 
     return mark_safe(select_ele)
