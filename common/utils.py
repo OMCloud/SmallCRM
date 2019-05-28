@@ -1,10 +1,10 @@
 #!-*- coding:utf8 -*-
-
+from django.db.models import Q
 #实现查询结果的过滤
 def table_filter(request, admin_class):
     filter_conditions = {}
     for k, v in request.GET.items():
-        if k == "page" or k == 'o': #分页关键字和排序关键字不能用作查询条件
+        if k == "page" or k == 'o' or k=="_q": #分页关键字和排序关键字不能用作查询条件
             continue
         if v:
             filter_conditions[k] = v
@@ -24,3 +24,12 @@ def sort_table(request, object_list):
             orderby_key = "-%s" % orderby_key
     #返回排序后的结果，和取反后的查询条件
     return object_list, orderby_key
+
+def search_table(request, admin_class, object_list):
+    search_key = request.GET.get("_q","")
+    q = Q()
+    q.connector = "OR"
+    for column in admin_class.search_filter:
+        q.children.append(("%s__contains" % column, search_key))
+    search_result = object_list.filter(q)
+    return  search_result

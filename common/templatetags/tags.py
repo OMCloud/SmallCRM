@@ -77,7 +77,7 @@ def render_filter_ele(condition, admin_class, filter_conditions):
 
 
 @register.simple_tag
-def build_paginators(query_sets, filter_conditions, pre_orderby_key):
+def build_paginators(query_sets, filter_conditions, pre_orderby_key, search_text):
     flag = True  #用来标识当出现不要展示的页码时，是否使用...
     filters = ''
     for k, v in filter_conditions.items():
@@ -101,8 +101,8 @@ def build_paginators(query_sets, filter_conditions, pre_orderby_key):
             if query_sets.number == loop_counter:
                 flag = True
                 ele_class = "active"
-            ele_list += '''<li class="%s"><a href="?page=%s%s&o=%s">%s</a></li>''' % (
-            ele_class, loop_counter, filters, pre_orderby_key, loop_counter)
+            ele_list += '''<li class="%s"><a href="?page=%s%s&o=%s_q=%s">%s</a></li>''' % (
+            ele_class, loop_counter, filters, pre_orderby_key, search_text, loop_counter)
         else:
             if flag:
                 ele_list += '<li><a>...</a></li>'

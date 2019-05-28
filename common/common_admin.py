@@ -5,15 +5,18 @@ enabled_admins = {}
 class BaseAdmin(object):
     list_display = []
     list_filters = []
+    search_filter = []
     list_per_page = 10
 
 class CustomerAdmin(BaseAdmin):
     list_display = ['id', 'qq','name','source','consultant','consult_course','date','status']
     list_filters = ['source','consultant','consult_course','status']
+    search_filter = ['id', 'qq','name']
     list_per_page = 5   #自定义每页显示的页数
 
 class CustomerFollowUpAdmin(BaseAdmin):
     list_display = ['customer', 'consultant', 'date']
+    search_filter = ['customer', 'consultant']
     list_per_page =5
 
 def register(model_class, admin_class=None):

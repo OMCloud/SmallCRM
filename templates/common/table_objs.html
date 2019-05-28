@@ -22,6 +22,15 @@
                   {% endfor %}
 
                     <button type="SUBMIT" class="btn btn-success">检索</button>
+                    <hr>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <input type="search" name="_q" class="form-control" style="margin-left: 15px" value="{{ search_text }}" placeholder="search by{% for search_field in admin_class.search_filter %} {{ search_field }} {% endfor %}">
+                        </div>
+                        <div class="col-lg-2">
+                            <button type="SUBMIT" class="btn btn-success">search</button>
+                        </div>
+                    </div>
                 </form>
 
                </div>
@@ -65,7 +74,7 @@
 {#                  {% endfor %}#}
 
 
-                  {% build_paginators query_sets filter_conditions pre_orderby_key%}
+                  {% build_paginators query_sets filter_conditions pre_orderby_key search_text%}
 
                   {% if query_sets.has_next %}
                         <li class=""><a href="?page={{ query_sets.next_page_number }}&o={{ pre_orderby_key }}">下页</a></li>
