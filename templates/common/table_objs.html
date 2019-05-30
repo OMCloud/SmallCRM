@@ -54,7 +54,7 @@
 {#                    {% get_query_sets  admin_class as query_sets %}#}
                     {% for obj in query_sets %}
                     <tr>
-                        {% build_table_row obj admin_class %}
+                        {% build_table_row obj admin_class request %}
                     </tr>
                     {% endfor %}
                   </tbody>

@@ -4,6 +4,7 @@ from common import common_admin
 from common.utils import table_filter, sort_table, search_table
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # Create your views here.
+from common.forms import create_model_form
 
 def index(request):
     return render(request, "common/table_index.html", context={
@@ -41,4 +42,20 @@ def display_table_objs(request, app_name, table_name):
         "orderby_key": orderby_key,
         "pre_orderby_key": request.GET.get("o", ""),
         "search_text": request.GET.get("_q", "")
+    })
+
+
+
+def table_obj_change(request, app_name, table_name, id):
+    admin_class = common_admin.enabled_admins[app_name][table_name]
+    model_form_class = create_model_form(request, admin_class)
+    obj = admin_class.model.objects.get(id=id)
+    if request.method == "POST":
+        form_obj = model_form_class(request.POST, instance=obj)
+        if form_obj.is_valid():
+            form_obj.save()
+    else:
+        form_obj = model_form_class(instance=obj)
+    return render(request, "common/table_change.html", context={
+        "form_obj": form_obj
     })
