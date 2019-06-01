@@ -175,4 +175,44 @@ def get_table_name(admin_class):
     table_name = admin_class.model._meta.verbose_name
     return table_name
 
+@register.simple_tag
+def get_m2m_obj_list(admin_class, field, form_obj):
+    '''
+    获取多对多所有可选数据
+    :param admin_class: 
+    :param field: 
+    :return: 
+    '''
+    #多对多中某字段的全部选项
+    field_obj = getattr(admin_class.model, field.name)
+    all_list = field_obj.rel.to.objects.all()
 
+    #判断instance方法是否存在
+    if form_obj.instance.id:
+        #数据对象中的选中的选项
+        instance_field = getattr(form_obj.instance, field.name)
+        selected_list = instance_field.all()
+    else:
+        return all_list
+
+    diff_list = []
+    #取差集 == low方法
+    for obj in all_list:
+        if obj in selected_list:
+            pass
+        else:
+            diff_list.append(obj)
+    return diff_list
+
+
+@register.simple_tag
+def get_m2m_selected_obj_list(form_obj, field):
+    '''
+    返回已选的数据
+    :param form_obj: 
+    :param field: 
+    :return: 
+    '''
+    if form_obj.instance.id:
+        field_obj = getattr(form_obj.instance, field.name)
+        return field_obj.all()

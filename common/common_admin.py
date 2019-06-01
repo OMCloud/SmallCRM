@@ -8,6 +8,7 @@ class BaseAdmin(object):
     search_filter = []
     list_per_page = 10
     ordering = None
+    filter_horizontal = []
 
 class CustomerAdmin(BaseAdmin):
     list_display = ['id', 'qq','name','source','consultant','consult_course','date','status']
@@ -15,6 +16,7 @@ class CustomerAdmin(BaseAdmin):
     search_filter = ['id', 'qq','name']
     list_per_page = 5   #自定义每页显示的页数
     ordering = "qq"
+    filter_horizontal = ['tags']
 
 class CustomerFollowUpAdmin(BaseAdmin):
     list_display = ['customer', 'consultant', 'date']

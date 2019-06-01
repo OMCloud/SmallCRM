@@ -64,9 +64,12 @@ def table_obj_change(request, app_name, table_name, id):
             form_obj.save()
     else:
         form_obj = model_form_class(instance=obj)
+    print("table_name:%s" % table_name)
     return render(request, "common/table_change.html", context={
         "form_obj": form_obj,
-        "admin_class":admin_class
+        "admin_class":admin_class,
+        "app_name":app_name,
+        "table_name": table_name
     })
 
 def table_obj_add(request, app_name, table_name):
@@ -81,5 +84,14 @@ def table_obj_add(request, app_name, table_name):
         form_obj = model_form_class()
     return render(request, "common/table_add.html", context={
         "form_obj": form_obj,
+        "admin_class": admin_class
+    })
+
+
+def table_obj_delete(request, app_name, table_name, id):
+    admin_class = common_admin.enabled_admins[app_name][table_name]
+    obj = admin_class.model.objects.get(id=id)
+    return render(request, "common/table_delete.html", context={
+        "obj": obj,
         "admin_class": admin_class
     })
