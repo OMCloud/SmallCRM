@@ -8,7 +8,10 @@
 {#    {{ admin_class.list_display }}#}
     <div class="panel panel-info">
           <div class="panel-heading">
-            <h3 class="panel-title">Panel title</h3>
+            <h3 class="panel-title">{% get_table_name admin_class %}
+                <a href="{{ request.path }}add/" class=pull-right">添加</a>
+            </h3>
+
           </div>
           <div class="panel-body">
                <div class="row">

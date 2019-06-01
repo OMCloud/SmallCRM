@@ -8,7 +8,9 @@ def table_filter(request, admin_class):
             continue
         if v:
             filter_conditions[k] = v
-    return admin_class.model.objects.filter(**filter_conditions), filter_conditions
+    #自定义排序
+    default_order = "-%s" % admin_class.ordering if admin_class.ordering else "-id"
+    return admin_class.model.objects.filter(**filter_conditions).order_by(default_order), filter_conditions
 
 
 def sort_table(request, object_list):

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from common import common_admin
 from common.utils import table_filter, sort_table, search_table
@@ -47,6 +47,14 @@ def display_table_objs(request, app_name, table_name):
 
 
 def table_obj_change(request, app_name, table_name, id):
+    '''
+    修改表
+    :param request: 
+    :param app_name: 
+    :param table_name: 
+    :param id: 
+    :return: 
+    '''
     admin_class = common_admin.enabled_admins[app_name][table_name]
     model_form_class = create_model_form(request, admin_class)
     obj = admin_class.model.objects.get(id=id)
@@ -57,5 +65,21 @@ def table_obj_change(request, app_name, table_name, id):
     else:
         form_obj = model_form_class(instance=obj)
     return render(request, "common/table_change.html", context={
-        "form_obj": form_obj
+        "form_obj": form_obj,
+        "admin_class":admin_class
+    })
+
+def table_obj_add(request, app_name, table_name):
+    admin_class = common_admin.enabled_admins[app_name][table_name]
+    model_form_class = create_model_form(request, admin_class)
+    if request.method == "POST":
+        form_obj = model_form_class(request.POST)
+        if form_obj.is_valid():
+            form_obj.save()
+            return redirect(request.path.replace("/add/","/"))
+    else:
+        form_obj = model_form_class()
+    return render(request, "common/table_add.html", context={
+        "form_obj": form_obj,
+        "admin_class": admin_class
     })

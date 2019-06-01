@@ -164,3 +164,15 @@ def build_table_column(column, orderby_key, filter_conditions):
 
     return mark_safe(ele)
 
+
+@register.simple_tag
+def get_table_name(admin_class):
+    '''
+    获取表名称
+    :param admin_class: 
+    :return: 
+    '''
+    table_name = admin_class.model._meta.verbose_name
+    return table_name
+
+
