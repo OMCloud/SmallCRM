@@ -15,6 +15,17 @@ def index(request):
 
 def display_table_objs(request, app_name, table_name):
     admin_class = common_admin.enabled_admins[app_name][table_name]
+    if request.method == "POST":
+        selected_ids = request.POST.get("selected_ids")
+        action = request.POST.get("action")
+        if selected_ids:
+            selected_obj = admin_class.model.objects.filter(id__in=selected_ids.split(","))
+        else:
+            raise KeyError("No object select!")
+        if hasattr(admin_class, action):
+            action_func = getattr(admin_class, action)
+            request._action = action
+            return action_func(admin_class, request, selected_obj)
 
     #获取过滤后的结果集合
     object_list, filter_conditions = table_filter(request, admin_class)
@@ -84,14 +95,21 @@ def table_obj_add(request, app_name, table_name):
         form_obj = model_form_class()
     return render(request, "common/table_add.html", context={
         "form_obj": form_obj,
-        "admin_class": admin_class
+        "admin_class": admin_class,
     })
 
 
 def table_obj_delete(request, app_name, table_name, id):
     admin_class = common_admin.enabled_admins[app_name][table_name]
     obj = admin_class.model.objects.get(id=id)
+    if request.method == "POST":
+        obj.delete()
+        return redirect("/common/%s/%s" % (app_name, table_name))
+    #与批量删除功能相兼容
+    objs = [obj,]
     return render(request, "common/table_delete.html", context={
-        "obj": obj,
-        "admin_class": admin_class
+        "objs": objs,
+        "admin_class": admin_class,
+        "app_name": app_name,
+        'table_name': table_name
     })
