@@ -75,7 +75,6 @@ def table_obj_change(request, app_name, table_name, id):
             form_obj.save()
     else:
         form_obj = model_form_class(instance=obj)
-    print("table_name:%s" % table_name)
     return render(request, "common/table_change.html", context={
         "form_obj": form_obj,
         "admin_class":admin_class,
@@ -86,6 +85,7 @@ def table_obj_change(request, app_name, table_name, id):
 def table_obj_add(request, app_name, table_name):
     admin_class = common_admin.enabled_admins[app_name][table_name]
     model_form_class = create_model_form(request, admin_class)
+    admin_class.is_add_form = True
     if request.method == "POST":
         form_obj = model_form_class(request.POST)
         if form_obj.is_valid():
@@ -102,14 +102,20 @@ def table_obj_add(request, app_name, table_name):
 def table_obj_delete(request, app_name, table_name, id):
     admin_class = common_admin.enabled_admins[app_name][table_name]
     obj = admin_class.model.objects.get(id=id)
+    errors = ""
     if request.method == "POST":
-        obj.delete()
-        return redirect("/common/%s/%s" % (app_name, table_name))
+        if not admin_class.readonly_table:
+            obj.delete()
+            return redirect("/common/%s/%s" % (app_name, table_name))
+        else:
+            errors = "table %s read only!" % admin_class.model._meta.model_name
+
     #与批量删除功能相兼容
     objs = [obj,]
     return render(request, "common/table_delete.html", context={
         "objs": objs,
         "admin_class": admin_class,
         "app_name": app_name,
-        'table_name': table_name
+        'table_name': table_name,
+        'errors': errors
     })

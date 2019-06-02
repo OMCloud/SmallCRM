@@ -3,6 +3,7 @@
 
 {% block container %}
     {% display_all_relationship objs %}
+        <span style="color:red;">{{ errors }}</span>
         <form method="post">{% csrf_token %}
         <input type="submit" class="btn btn-danger" value="确定">
         <input type="hidden" value="yes" name="delete_confirm">

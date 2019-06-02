@@ -9,7 +9,9 @@
     <div class="panel panel-info">
           <div class="panel-heading">
             <h3 class="panel-title">{% get_table_name admin_class %}
-                <a href="{{ request.path }}add/" class=pull-right">添加</a>
+                {% if not admin_class.readonly_table %}
+                    <a href="{{ request.path }}add/" class=pull-right">添加</a>
+                {% endif %}
             </h3>
 
           </div>
