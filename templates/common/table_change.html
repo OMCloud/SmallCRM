@@ -63,7 +63,10 @@
                       </select>
                     </div>
                  {% else %}
-                    {{ field }} <span style="color: red">{{ field.errors }}</span>
+
+                    {{ field }}
+                    <span style="color: #9d9d9d">{{ field.help_text }}</span>
+                    <span style="color: red">{{ field.errors }}</span>
                 {% endif %}
             </div>
           </div>

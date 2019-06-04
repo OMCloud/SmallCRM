@@ -62,7 +62,7 @@ class CustomerAdmin(BaseAdmin):
     ordering = "qq"
     filter_horizontal = ['tags']
     readonly_fields = ['qq', 'consultant', 'tags']
-    readonly_table = True
+    readonly_table = False
 
     #自定义字段过滤
     def clean_name(self):
@@ -75,6 +75,12 @@ class CustomerFollowUpAdmin(BaseAdmin):
     search_filter = ['id', 'content',]
     list_per_page =5
 
+
+class UserProfileAdmin(BaseAdmin):
+    list_display = ('email', 'name')
+    readonly_fields = ('password')
+
+
 def register(model_class, admin_class=None):
     if model_class._meta.app_label not in enabled_admins:
         enabled_admins[model_class._meta.app_label] = {}
@@ -83,3 +89,4 @@ def register(model_class, admin_class=None):
 
 register(models.Customer, CustomerAdmin)
 register(models.CustomerFollowUp, CustomerFollowUpAdmin)
+register(models.UserProfile, UserProfileAdmin)

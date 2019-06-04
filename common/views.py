@@ -119,3 +119,13 @@ def table_obj_delete(request, app_name, table_name, id):
         'table_name': table_name,
         'errors': errors
     })
+
+
+def change_password(request, app_name, table_name, id):
+    admin_class = common_admin.enabled_admins[app_name][table_name]
+    obj = admin_class.model.objects.get(id=id)
+    obj = admin_class.model.objects.get(id=id)
+    if request.method == "POST":
+        print(request.method)
+        return redirect("/common/%s/%s" % (app_name, table_name))
+    return render(request, "common/change_password.html")

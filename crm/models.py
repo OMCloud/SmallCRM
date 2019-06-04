@@ -1,13 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.contrib.auth.models import (
+    BaseUserManager, AbstractBaseUser
+)
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 # Create your models here.
 
 class Customer(models.Model):
     '''
     客户信息
     '''
-    name = models.CharField(max_length=32, blank=True, null=True)
+    name = models.CharField(max_length=32, blank=True, null=True, help_text="请改为真实姓名")
     qq = models.CharField(max_length=64,  unique=True)
     qq_name = models.CharField(max_length=64, blank=True, null=True)
     phone = models.CharField(max_length=64, blank=True, null=True)
@@ -235,24 +239,92 @@ class Payment(models.Model):
         verbose_name_plural = "缴费记录"
 
 
-class UserProfile(models.Model):
-    '''
-    用户信息表
-    '''
-    user = models.OneToOneField(User)
-    name = models.CharField(max_length=32)
+# class UserProfile(models.Model):
+#     '''
+#     用户信息表
+#     '''
+#     user = models.OneToOneField(User)
+#     name = models.CharField(max_length=32)
+#
+#     ##下面这句代码如果再加上null=True,会出现警告错误
+#     # (fields.W340) null has no effect on ManyToManyField.
+#     #roles = models.ManyToManyField("Role", blank=True, null=True)
+#     roles = models.ManyToManyField("Role", blank=True)
+#
+#     def __str__(self):
+#         return self.name
+#
+#     class Meta:
+#         verbose_name = "用户"
+#         verbose_name_plural = "用户
+class UserProfileManager(BaseUserManager):
+    def create_user(self, email, name, password=None):
+        '''
+        基于email 来创建和保存用户
+        :param email: 
+        :param name: 
+        :param password: 
+        :return: 
+        '''
+        if not email:
+            raise ValueError("用户名必须是一个邮箱地址")
+        user = self.model(email=self.normalize_email(email), name=name)
 
-    ##下面这句代码如果再加上null=True,会出现警告错误
-    # (fields.W340) null has no effect on ManyToManyField.
-    #roles = models.ManyToManyField("Role", blank=True, null=True)
-    roles = models.ManyToManyField("Role", blank=True)
+        user.set_password(password)
+        self.is_active = True
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, name, password):
+        '''
+        基于邮箱创建超级用户
+        :param email: 
+        :param name: 
+        :param password: 
+        :return: 
+        '''
+        user = self.create_user(email, password=password, name=name)
+        user.is_active = True
+        user.is_admin = True
+        user.save(using=self._db)
+        return user
+
+
+class UserProfile(AbstractBaseUser):
+    '''
+    用户账号表
+    '''
+    email = models.EmailField(verbose_name='邮箱地址', max_length=255, unique=True, null=True)
+    password = models.CharField(_('password'), max_length=128, help_text=mark_safe('''<a href=password>修改密码</a>'''))
+    name = models.CharField(max_length=32)
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
+
+    objects = UserProfileManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
+
+    def get_full_name(self):
+        return self.email
+
+    def get_short_name(self):
+        return self.email
 
     def __str__(self):
-        return self.name
+        return self.email
 
-    class Meta:
-        verbose_name = "用户"
-        verbose_name_plural = "用户"
+    def has_perm(self, perm, obj=None):
+        return True
+
+    def has_module_perms(self, app_label):
+        return True
+
+    @property
+    def is_staff(self):
+        return self.is_admin
+
+
 
 
 class Role(models.Model):
@@ -274,6 +346,8 @@ class Menu(models.Model):
     菜单
     '''
     name = models.CharField(max_length=32)
+    url_type_choices = ((0, 'alias'),(1, 'absolute_url'))
+    url_type = models.SmallIntegerField(choices=url_type_choices, default=0)
     url_name = models.CharField(max_length=64)
 
     def __str__(self):
