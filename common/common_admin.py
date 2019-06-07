@@ -14,6 +14,12 @@ class BaseAdmin(object):
     readonly_fields = []
     readonly_table = False
     modelform_exclude_fields = ()
+    
+    def enroll(self):
+        return '''<a href="/crm/customer/%s/enrollment/">报名</a>''' % self.instance.id
+
+    enroll.display_name = "报名"
+
 
     def default_form_validation(self):
         '''
@@ -56,7 +62,7 @@ class BaseAdmin(object):
     })
 
 class CustomerAdmin(BaseAdmin):
-    list_display = ['id', 'qq','name','source','consultant','consult_course','date','status']
+    list_display = ['id', 'qq','name','source','consultant','consult_course','date','status', 'enroll']
     list_filters = ['source','consultant','consult_course','status', 'date']
     search_filter = ['id', 'qq','name']
     list_per_page = 5   #自定义每页显示的页数

@@ -5,14 +5,16 @@ from common.utils import table_filter, sort_table, search_table
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # Create your views here.
 from common.forms import create_model_form
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def index(request):
     return render(request, "common/table_index.html", context={
         'table_list': common_admin.enabled_admins
     })
 
 
-
+@login_required
 def display_table_objs(request, app_name, table_name):
     admin_class = common_admin.enabled_admins[app_name][table_name]
     if request.method == "POST":
@@ -56,7 +58,7 @@ def display_table_objs(request, app_name, table_name):
     })
 
 
-
+@login_required
 def table_obj_change(request, app_name, table_name, id):
     '''
     修改表
@@ -82,6 +84,7 @@ def table_obj_change(request, app_name, table_name, id):
         "table_name": table_name
     })
 
+@login_required
 def table_obj_add(request, app_name, table_name):
     admin_class = common_admin.enabled_admins[app_name][table_name]
     model_form_class = create_model_form(request, admin_class)
@@ -98,7 +101,7 @@ def table_obj_add(request, app_name, table_name):
         "admin_class": admin_class,
     })
 
-
+@login_required
 def table_obj_delete(request, app_name, table_name, id):
     admin_class = common_admin.enabled_admins[app_name][table_name]
     obj = admin_class.model.objects.get(id=id)
@@ -120,7 +123,7 @@ def table_obj_delete(request, app_name, table_name, id):
         'errors': errors
     })
 
-
+@login_required
 def change_password(request, app_name, table_name, id):
     admin_class = common_admin.enabled_admins[app_name][table_name]
     obj = admin_class.model.objects.get(id=id)

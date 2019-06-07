@@ -12,9 +12,12 @@ class Customer(models.Model):
     客户信息
     '''
     name = models.CharField(max_length=32, blank=True, null=True, help_text="请改为真实姓名")
-    qq = models.CharField(max_length=64,  unique=True)
-    qq_name = models.CharField(max_length=64, blank=True, null=True)
-    phone = models.CharField(max_length=64, blank=True, null=True)
+    qq = models.CharField(verbose_name="QQ",max_length=64,  unique=True)
+    qq_name = models.CharField(verbose_name="QQ昵称",max_length=64, blank=True, null=True)
+    phone = models.CharField(verbose_name="手机号",max_length=64, blank=True, null=True)
+    id_num = models.CharField(verbose_name="身份证号",max_length=64, blank=True, null=True)
+    email = models.EmailField(verbose_name="常用邮箱", blank=True, null=True)
+
     source_choices = (                        #客户来源
                      (1,"转介绍"),
                      (2, "QQ群"),
@@ -115,6 +118,19 @@ class Branch(models.Model):
         verbose_name = "地区"
         verbose_name_plural = "地区"
 
+
+class ContractTemplate(models.Model):
+    '''
+    合同模板
+    '''
+    name = models.CharField("合同模板", max_length=64)
+    template = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
+
 class ClassList(models.Model):
     '''
     班级
@@ -126,6 +142,9 @@ class ClassList(models.Model):
         (1, "面授（周末）"),
         (2, "网络班")
     )
+
+    contract = models.ForeignKey("ContractTemplate", blank=True, null=True)
+
     class_type = models.SmallIntegerField(choices=class_type_choices, verbose_name="课程类型")
     semester = models.PositiveSmallIntegerField(verbose_name="学期")
     teachers = models.ManyToManyField("UserProfile")

@@ -64,7 +64,7 @@
                         <th width="35px"><input type="checkbox" onclick="SelectAllToggle(this)"></th>
                         {% for column in admin_class.list_display %}
 
-                            {%  build_table_column column orderby_key filter_conditions %}
+                            {%  build_table_column column orderby_key filter_conditions admin_class%}
 {#                            <th><a href="?o={{ column }}">{{ column }}</a></th>#}
                         {% endfor %}
                     </tr>

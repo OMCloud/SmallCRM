@@ -1,6 +1,7 @@
 from django import template
 from django.utils.safestring import mark_safe
 from django.utils.timezone import datetime,timedelta
+from django.core.exceptions import FieldDoesNotExist
 register = template.Library()
 
 @register.simple_tag
@@ -17,16 +18,24 @@ def get_query_sets(admin_class):
 def build_table_row(obj, admin_class, request):
     row_ele = ""
     for index, column in enumerate(admin_class.list_display):
-        field_obj = obj._meta.get_field(column)
-        if field_obj.choices: #判断是不是为空
-            column_data = getattr(obj, "get_%s_display" % column)()
-        else:
-            column_data = getattr(obj, column)
-        if type(column_data).__name__ == 'datetime':
-            column_data = column_data.strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            field_obj = obj._meta.get_field(column)
+            if field_obj.choices: #判断是不是为空
+                column_data = getattr(obj, "get_%s_display" % column)()
+            else:
+                column_data = getattr(obj, column)
+            if type(column_data).__name__ == 'datetime':
+                column_data = column_data.strftime("%Y-%m-%d %H:%M:%S")
 
-        if index == 0: #为第一列添加跳转
-            column_data = "<a href='%s%s/change/'>%s</a>" % (request.path, obj.id, column_data)
+            if index == 0: #为第一列添加跳转
+                column_data = "<a href='%s%s/change/'>%s</a>" % (request.path, obj.id, column_data)
+        except FieldDoesNotExist as  e:
+            if hasattr(admin_class, column):
+                column_func = getattr(admin_class, column)
+                admin_class.instance = obj
+                admin_class.request = request
+                column_data = column_func()
+
 
         row_ele += "<td>%s</td>" % column_data
     return mark_safe(row_ele)
@@ -138,14 +147,13 @@ def build_paginators(query_sets, filter_conditions, pre_orderby_key, search_text
 
 
 @register.simple_tag
-def build_table_column(column, orderby_key, filter_conditions):
+def build_table_column(column, orderby_key, filter_conditions, admin_class):
     filters = ''
     for k, v in filter_conditions.items():
         filters += "&%s=%s" % (k, v)
 
     #根据排序字段重新设置排序条件（取反）
-    ele = '''<th><a href="?o=%s%s">%s</a>%s
-    </th>'''
+    ele = '''<th><a href="?o=%s%s">%s</a>%s </th>'''
     if orderby_key:
         if orderby_key.startswith("-"):
             icon = '''<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>'''
@@ -159,7 +167,16 @@ def build_table_column(column, orderby_key, filter_conditions):
         orderby_key = column
         icon = ''
 
-    ele = ele % (orderby_key, filters, column, icon)
+    #显示字段的verbose_name
+    try:
+        column_verbose_name = admin_class.model._meta.get_field(column).verbose_name.upper()
+    except FieldDoesNotExist as e:
+        column_verbose_name = getattr(admin_class, column).display_name
+        ele = '''<th><a href="#">%s</a>%s </th>''' % (column_verbose_name, icon)
+        return mark_safe(ele)
+        
+    #ele = ele % (orderby_key, filters, column, icon)
+    ele = ele % (orderby_key, filters, column_verbose_name, icon)
 
 
     return mark_safe(ele)
