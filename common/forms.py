@@ -86,6 +86,7 @@ def create_model_form(request, admin_class):
     class Meta:
         model = admin_class.model
         fields = "__all__"
+        exclude = admin_class.modelform_exclude_fields
     attrs = {"Meta":Meta}
     #通过type动态生成类
     _model_form_class = type("DynamicModelForm", (ModelForm,), attrs)

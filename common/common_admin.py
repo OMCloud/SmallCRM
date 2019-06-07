@@ -13,6 +13,7 @@ class BaseAdmin(object):
     actions = ["delete_selected_objs"]
     readonly_fields = []
     readonly_table = False
+    modelform_exclude_fields = ()
 
     def default_form_validation(self):
         '''
@@ -79,6 +80,8 @@ class CustomerFollowUpAdmin(BaseAdmin):
 class UserProfileAdmin(BaseAdmin):
     list_display = ('email', 'name')
     readonly_fields = ('password')
+    filter_horizontal = ('user_permissions', "groups")
+    modelform_exclude_fields = ("last_login",)
 
 
 def register(model_class, admin_class=None):

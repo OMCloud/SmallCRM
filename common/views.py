@@ -124,8 +124,19 @@ def table_obj_delete(request, app_name, table_name, id):
 def change_password(request, app_name, table_name, id):
     admin_class = common_admin.enabled_admins[app_name][table_name]
     obj = admin_class.model.objects.get(id=id)
-    obj = admin_class.model.objects.get(id=id)
+    error = {}
     if request.method == "POST":
         print(request.method)
-        return redirect("/common/%s/%s" % (app_name, table_name))
-    return render(request, "common/change_password.html")
+        password1 = request.POST.get("password1")
+        password2 = request.POST.get("password2")
+        if password2 == password1:
+            #更新设置密码
+            obj.set_password(password1)
+            obj.save()
+            return redirect(request.path.rstrip("password/"))
+        else:
+            error['invalid_password'] = "password not the same"
+    return render(request, "common/change_password.html", context={
+        "obj": obj,
+        "errors": error
+    })
