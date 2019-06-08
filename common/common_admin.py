@@ -16,9 +16,12 @@ class BaseAdmin(object):
     modelform_exclude_fields = ()
     
     def enroll(self):
-        return '''<a href="/crm/customer/%s/enrollment/">报名</a>''' % self.instance.id
+        if self.instance.status == 0:
+            return '''<a href="/crm/customer/%s/enrollment/">报名新课程</a>''' % self.instance.id
+        else:
+            return '''<a href="/crm/customer/%s/enrollment/">报名</a>''' % self.instance.id
 
-    enroll.display_name = "报名"
+    enroll.display_name = "报名课程"
 
 
     def default_form_validation(self):

@@ -37,7 +37,7 @@ class CustomerForm(ModelForm):
         readonly_fields = ("qq", 'consultant','source')
 
 
-
+#用户报名表单
 class EnrollmentForm(ModelForm):
     def __new__(cls, *args, **kwargs):
         for field_name, field_obj in cls.base_fields.items():
@@ -47,3 +47,20 @@ class EnrollmentForm(ModelForm):
     class Meta:
         model = models.Enrollment
         fields = ['enrolled_class', 'consultant']
+
+
+
+#用户缴费表单
+class PaymentForm(ModelForm):
+    def __new__(cls, *args, **kwargs):
+        for field_name, field_obj in cls.base_fields.items():
+            field_obj.widget.attrs['class'] = 'form-control'
+
+        return ModelForm.__new__(cls)
+
+    class Meta:
+        model = models.Payment
+        fields = '__all__'
+
+
+

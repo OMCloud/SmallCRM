@@ -22,5 +22,8 @@ urlpatterns = [
     url(r'^customers/$', views.customer_list, name="customer_list"),
     url(r'^customer/(\d+)/enrollment/$', views.enrollment, name="enrollment"),
     url(r'^customer/registration/(\d+)/(\w+)/$', views.registration, name="registration"),
+    url(r'^payment/(\d+)/$', views.payment, name="payment"),
+    url(r'^contract_review/(\d+)/$', views.contract_review, name="contract_review"),
+    url(r'^enrollment_rejection/(\d+)/$', views.enrollment_rejection, name="enrollment_rejection"),
 
 ]
