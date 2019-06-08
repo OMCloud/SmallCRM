@@ -10,6 +10,24 @@ class CustomerForm(ModelForm):
                 field_obj.widget.attrs['disabled'] = 'disabled'
 
         return ModelForm.__new__(cls)
+
+    #验证qq是否与后台一致
+    def clean_qq(self):
+        if self.instance.qq != self.cleaned_data['qq']:
+            self.add_error("qq","qq号码与后台不一致")
+        return self.cleaned_data['qq']
+
+    def clean_source(self):
+        if self.instance.source != self.cleaned_data['source']:
+            self.add_error('source', "客户来源与后台不一致")
+        return self.cleaned_data['source']
+
+    def clean_consultant(self):
+        if self.instance.consultant != self.cleaned_data['consultant']:
+            self.add_error("consultant", "信息与后台不一致")
+        return  self.cleaned_data['consultant']
+
+
     class Meta:
         model = models.Customer
         fields = '__all__'
