@@ -5,6 +5,8 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.shortcuts import redirect,HttpResponse
+
 # Register your models here.
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ('id', 'qq', 'source', 'consultant', 'content', 'status', 'date')
@@ -89,16 +91,62 @@ class UserProfileAdmin(BaseUserAdmin):
 admin.site.register(models.UserProfile, UserProfileAdmin)
 ##############################################自定义用户管理#######################
 
+
+
+class CourseRecordAdmin(admin.ModelAdmin):
+    list_display = ['from_class', 'day_num', 'teacher', 'has_homework', 'homework_title', 'date']
+
+
+    def initialize_studyrecords(self, request, queryset):
+        if len(queryset) > 1:
+            return HttpResponse("不能选择多个班级")
+        new_obj_list = []
+        for enroll_obj in queryset[0].from_class.enrollment_set.all():
+            new_obj_list.append(
+                models.StudyRecord(
+                    student = enroll_obj,
+                    course_record = queryset[0],
+                    attendance = 0,
+                    score = 0,
+                )
+            )
+        try:
+            #批量创建
+            models.StudyRecord.objects.bulk_create(new_obj_list)
+        except Exception as e:
+            return HttpResponse("批量创建失败！")
+        return redirect("/admin/crm/studyrecord/?course_record__id__exact=%s" % queryset[0].id)
+
+    #django后台自定义动作名称
+    initialize_studyrecords.short_description = "初始化本节所有学员的上课记录"
+    #django 自定义动作
+    actions = ['initialize_studyrecords', ]
+
+
+# class StudyRecordAdmin(admin.ModelAdmin):
+#     list_display = ['student','course_record','attendance','score','date']
+#     list_filter = ['course_record','score','attendance','course_record__from_class','student']
+#     list_editable = ['score','attendance']
+
+class StudyRecordAdmin(admin.ModelAdmin):
+    list_display = ['student', 'course_record', 'attendance', 'socre', 'date']
+    list_filter = ['course_record', 'socre', 'attendance', 'course_record__from_class', 'student']
+    #可编辑
+    list_editable = ['socre', 'attendance']
+
+
 admin.site.register(models.Customer, CustomerAdmin)
 admin.site.register(models.CustomerFollowUp)
 admin.site.register(models.Enrollment)
 admin.site.register(models.Course)
 admin.site.register(models.ClassList)
-admin.site.register(models.CourseRecord)
+#admin.site.register(models.CourseRecord)
+admin.site.register(models.CourseRecord, CourseRecordAdmin)
 admin.site.register(models.Branch)
 admin.site.register(models.Role)
 admin.site.register(models.Payment)
-admin.site.register(models.StudyRecord)
+#admin.site.register(models.StudyRecord)
+admin.site.register(models.StudyRecord, StudyRecordAdmin)
 #admin.site.register(models.UserProfile)
 admin.site.register(models.Tag)
 admin.site.register(models.Menu)
