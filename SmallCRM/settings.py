@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crm.apps.CrmConfig',
+    'student',
+    'common',
 ]
 
 MIDDLEWARE = [
@@ -134,3 +136,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+     os.path.join(BASE_DIR, "static"),
+)
+
+#自定义用户表（用来替代django自带的用户认证）管理
+AUTH_USER_MODEL = "crm.UserProfile"
+
+
+#login登录后自动跳转的路径
+LOGIN_URL = "/login/"
+
+#存储报名证件信息
+ENROLLED_DATA = "%s/enrolled_data" % BASE_DIR
+
+#存储作业数据
+HOMEWORKS_DATA = "%s/homeworks" % BASE_DIR
