@@ -33,3 +33,7 @@ def user_logout(request):
     logout(request)
     return redirect("/login/")
 
+
+def index(request):
+    return render(request, "index.html")
+

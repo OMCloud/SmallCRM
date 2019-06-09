@@ -19,6 +19,7 @@ from SmallCRM import views
 
 
 urlpatterns = [
+    url(r'^$', views.index),
     url(r'^admin/', admin.site.urls),
     url(r'^crm/', include("crm.urls")),
     url(r'^student/', include("student.urls")),

@@ -322,6 +322,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     roles = models.ManyToManyField("Role", blank=True)
     objects = UserProfileManager()
 
+    stu_account = models.ForeignKey("Customer", verbose_name="关联客户表", blank=True, null=True, help_text="报名后才能创建账号")
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
